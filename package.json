@@ -59,7 +59,6 @@
     "@vitest/coverage-v8": "^4.0.18",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
-    "oxc-transform": "^0.116.0",
     "oxfmt": "^0.36.0",
     "oxlint": "^1.51.0",
     "typescript": "^5.9.3",
