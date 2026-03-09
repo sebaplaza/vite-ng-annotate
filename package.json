@@ -1,0 +1,69 @@
+{
+  "name": "vite-ng-annotate",
+  "version": "0.1.0",
+  "description": "Vite plugin that adds AngularJS dependency injection annotations",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint src/ tests/",
+    "format": "oxfmt --write src/ tests/",
+    "format:check": "oxfmt --check src/ tests/",
+    "coverage": "vitest run --coverage",
+    "prepare": "husky",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "keywords": [
+    "vite",
+    "vite-plugin",
+    "angularjs",
+    "angular",
+    "ng-annotate",
+    "dependency-injection",
+    "minification"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@9.15.3",
+  "dependencies": {
+    "acorn": "^8.16.0",
+    "estree-walker": "^3.0.3",
+    "magic-string": "^0.30.21"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs}": [
+      "oxlint",
+      "oxfmt --write"
+    ]
+  },
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/cli": "^2.30.0",
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@types/node": "^25.3.5",
+    "@vitest/coverage-v8": "^4.0.18",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.2",
+    "oxc-transform": "^0.116.0",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,6 +1,6 @@
 import type { Plugin } from "vite";
-import { annotate } from "./annotate.js";
-import type { NgAnnotateOptions } from "./types.js";
+import { annotate } from "./annotate.ts";
+import type { NgAnnotateOptions } from "./types.ts";
 
 /**
  * Default file extensions to process for AngularJS DI annotation.
@@ -134,5 +134,5 @@ function mightContainAngular(code: string): boolean {
 }
 
 /* Re-export the annotate function and types for programmatic use. */
-export { annotate } from "./annotate.js";
-export type { AnnotationTarget, NgAnnotateOptions } from "./types.js";
+export { annotate } from "./annotate.ts";
+export type { AnnotationTarget, NgAnnotateOptions } from "./types.ts";
