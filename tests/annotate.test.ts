@@ -215,6 +215,27 @@ describe("explicit @ngInject comment", () => {
     const result = annotate(input, { explicitOnly: true })!;
     expect(result).toContain('x.$inject = ["$scope"];');
   });
+
+  it("should annotate function with @ngInject in single-line JSDoc comment", () => {
+    const input = "/** @ngInject */\nfunction foo($scope) {}";
+    const result = annotate(input, { explicitOnly: true })!;
+    expect(result).toContain('foo.$inject = ["$scope"];');
+  });
+
+  it("should annotate function with @ngInject in multi-line JSDoc comment", () => {
+    const input = [
+      "/**",
+      " * Some description",
+      " * @param {object} aide",
+      " * @ngInject",
+      " */",
+      "function hasRightToReadContributions(aide, contributionsService) {}",
+    ].join("\n");
+    const result = annotate(input, { explicitOnly: true })!;
+    expect(result).toContain(
+      'hasRightToReadContributions.$inject = ["aide", "contributionsService"];',
+    );
+  });
 });
 
 /* ================================================================

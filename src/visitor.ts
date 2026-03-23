@@ -876,7 +876,11 @@ function hasConstructorWithNgInject(classNode: AcornNode): boolean {
  */
 function hasNgInjectComment(node: AcornNode): boolean {
   if (!node.leadingComments) return false;
-  return node.leadingComments.some((c) => c.value.trim() === "@ngInject");
+  return node.leadingComments.some(
+    (c) =>
+      c.value.trim() === "@ngInject" ||
+      c.value.split("\n").some((line) => line.trim().replace(/^\*\s*/, "") === "@ngInject"),
+  );
 }
 
 /**
