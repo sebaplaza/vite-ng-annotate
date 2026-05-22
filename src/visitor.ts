@@ -959,6 +959,11 @@ function findContainingStatement(node: AcornNode, ancestors: AcornNode[]): Acorn
  * Collect all top-level function/class/variable declarations in the AST.
  * Populates a map from name to { node, declarationNode } for reference resolution.
  *
+ * Also descends into IIFE bodies (`(function () { ... })()`, arrow IIFEs,
+ * and unary-prefix `!function () { ... }()` variants) so that AngularJS
+ * modules wrapped in the historical IIFE idiom still resolve identifier
+ * references like `.factory("foo", foo)` to their declaration site.
+ *
  * @param ast - The root AST node (Program).
  * @param declarations - Map to populate with declaration info.
  */
@@ -972,6 +977,45 @@ function collectDeclarations(
 
   for (const stmt of body) {
     processDeclarationStatement(stmt, stmt, declarations);
+    collectFromIIFE(stmt, declarations);
+  }
+}
+
+/**
+ * If `stmt` is an IIFE-style expression statement, recurse into its body
+ * and register every declaration found there. The `topStmt` for each inner
+ * declaration is the inner declaration itself, so injected `Name.$inject`
+ * lines are appended right after the declaration — inside the IIFE block,
+ * not at the program top-level.
+ *
+ * @param stmt - A program-level statement to probe for an IIFE shape.
+ * @param declarations - Map to populate with any nested declarations.
+ */
+function collectFromIIFE(
+  stmt: AcornNode,
+  declarations: Map<string, { node: AcornNode; declarationNode: AcornNode }>,
+): void {
+  if (stmt.type !== "ExpressionStatement") return;
+  let expr = stmt.expression;
+  /* `!function(){}()` / `+function(){}()` / `void function(){}()` etc. */
+  if (expr?.type === "UnaryExpression") expr = expr.argument;
+  if (expr?.type !== "CallExpression") return;
+  const callee = expr.callee;
+  if (
+    !callee ||
+    (callee.type !== "FunctionExpression" && callee.type !== "ArrowFunctionExpression")
+  ) {
+    return;
+  }
+  const fnBody = callee.body;
+  /* Arrow IIFEs can have a non-block body (`(() => 1)()`); nothing to recurse into there. */
+  if (!fnBody || Array.isArray(fnBody) || fnBody.type !== "BlockStatement") return;
+  const innerBody = fnBody.body;
+  if (!Array.isArray(innerBody)) return;
+  for (const inner of innerBody) {
+    processDeclarationStatement(inner, inner, declarations);
+    /* Defensive: nested IIFEs (rare but legal). */
+    collectFromIIFE(inner, declarations);
   }
 }
 

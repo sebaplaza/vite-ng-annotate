@@ -184,6 +184,40 @@ describe("reference following", () => {
     const result = annotate(input)!;
     expect(result).toContain('MyCtrl.$inject = ["$scope"];');
   });
+
+  it("should add $inject for references inside an IIFE-wrapped module", () => {
+    const input = [
+      "(function () {",
+      "  'use strict';",
+      "  angular.module('common.services').factory('domiciliationsService', domiciliationsService);",
+      "  function domiciliationsService($q, $http) { return {}; }",
+      "})();",
+    ].join("\n");
+    const result = annotate(input)!;
+    expect(result).toContain('domiciliationsService.$inject = ["$q", "$http"];');
+  });
+
+  it("should add $inject for references inside an arrow IIFE", () => {
+    const input = [
+      "(() => {",
+      "  angular.module('m').service('Svc', Svc);",
+      "  function Svc($q) {}",
+      "})();",
+    ].join("\n");
+    const result = annotate(input)!;
+    expect(result).toContain('Svc.$inject = ["$q"];');
+  });
+
+  it("should add $inject for references inside a unary-prefixed IIFE", () => {
+    const input = [
+      "!function () {",
+      "  angular.module('m').factory('foo', foo);",
+      "  function foo($http) {}",
+      "}();",
+    ].join("\n");
+    const result = annotate(input)!;
+    expect(result).toContain('foo.$inject = ["$http"];');
+  });
 });
 
 /* ================================================================
