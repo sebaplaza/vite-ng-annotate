@@ -276,7 +276,7 @@ export function collectAnnotations(ast: AcornNode, options: NgAnnotateOptions): 
     const args = node.arguments || [];
 
     /* --- Module methods with a name argument: .controller("Name", fn) --- */
-    if (MODULE_METHODS_WITH_NAME.has(methodName) && args.length >= 2) {
+    if (MODULE_METHODS_WITH_NAME.has(methodName) && args.length === 2) {
       // Guard: first arg must be a string literal (the registration name).
       // Without this, _.filter(collection, fn) would match because "filter" is in the list.
       if (args[0].type === "Literal" && typeof args[0].value === "string") {
@@ -367,7 +367,7 @@ export function collectAnnotations(ast: AcornNode, options: NgAnnotateOptions): 
 
     /* --- $provide.<method>("name", fn) --- */
     if (isCalledOn(callee, "$provide")) {
-      if (MODULE_METHODS_WITH_NAME.has(methodName) && args.length >= 2) {
+      if (MODULE_METHODS_WITH_NAME.has(methodName) && args.length === 2) {
         if (args[0].type === "Literal" && typeof args[0].value === "string") {
           annotateArgument(args[1], ancestors);
         }

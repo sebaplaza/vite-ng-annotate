@@ -511,3 +511,10 @@ describe("false positive guard", () => {
     expect(result).toContain('["$http", "$q"');
   });
 });
+
+it("should not annotate a MODULE_METHODS_WITH_NAME call with more than 2 args", () => {
+  // Angular never calls .filter/.controller/etc with 3 args; extra args = not Angular
+  const input = 'someObj.filter("name", function(dep) {}, extraArg);';
+  const result = annotate(input);
+  expect(result).toBeNull();
+});
