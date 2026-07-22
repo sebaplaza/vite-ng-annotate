@@ -476,3 +476,45 @@ describe("edge cases", () => {
     expect(result).toBeNull();
   });
 });
+
+/* ================================================================
+ * False-positive guard — non-Angular calls with same method names
+ * ================================================================ */
+describe("false positive guard", () => {
+  it("should not annotate _.filter(collection, fn) — first arg is not a string", () => {
+    const input = "_.filter(dispositifs, function(dispositif) { return dispositif.active; });";
+    const result = annotate(input);
+    expect(result).toBeNull();
+  });
+
+  it("should not annotate _.map(array, fn) — first arg is not a string", () => {
+    const input = "_.map(items, function(item) { return item.id; });";
+    const result = annotate(input);
+    expect(result).toBeNull();
+  });
+
+  it("should not annotate _.factory(obj, fn) — first arg is not a string", () => {
+    const input = "_.factory(myObj, function(dep) { return dep; });";
+    const result = annotate(input);
+    expect(result).toBeNull();
+  });
+
+  it("should still annotate angular .filter('name', fn) — first arg IS a string", () => {
+    const input = 'myMod.filter("myFilter", function($scope) { return function(input) {}; });';
+    const result = annotate(input)!;
+    expect(result).toContain('["$scope"');
+  });
+
+  it("should still annotate angular .service('name', fn) — first arg IS a string", () => {
+    const input = 'myMod.service("MyService", function($http, $q) {});';
+    const result = annotate(input)!;
+    expect(result).toContain('["$http", "$q"');
+  });
+});
+
+it("should not annotate a MODULE_METHODS_WITH_NAME call with more than 2 args", () => {
+  // Angular never calls .filter/.controller/etc with 3 args; extra args = not Angular
+  const input = 'someObj.filter("name", function(dep) {}, extraArg);';
+  const result = annotate(input);
+  expect(result).toBeNull();
+});
